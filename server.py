@@ -6,9 +6,9 @@ app = Flask(__name__)
 app.debug = True
 
 
-@app.route('/')
-def hello_world():
-   database_helper.init()
+#@app.route('/')
+#def hello_world():
+   #database_helper.init()
    #sign_in()
 
 @app.route('/signup', methods=['POST'])
@@ -64,4 +64,5 @@ def teardown_app(exception):
     database_helper.close_db()
 
 if __name__ == '__main__':
-    app.run()
+    with app.app_context():
+        database_helper.init()
