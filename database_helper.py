@@ -46,7 +46,7 @@ def init():
     res = c.execute("SELECT * FROM users WHERE email='email' LIMIT 1")
     res = res.fetchone()
     print("User table: ", res)
-    print(get_user_data_by_email('1337', 'email'))
+    print(get_user_data_by_token('1337'))
 
     so = sign_out('1337')
 
@@ -142,34 +142,32 @@ def change_password(token, old_password, new_password):
         return json.dumps({"success": False, "message": "You are not signed in."})
 
 
-# Working on
+# Done - tested (SQL inj protected)
 def get_user_data_by_email(token, email):
     c = get_db()
     # if loggedInUsers(token) != null
     res = c.execute("SELECT * FROM loggedusers WHERE userID=:ID LIMIT 1", {"ID": token})
     res = res.fetchone()
     if res:
-        messages = c.execute("SELECT * FROM users WHERE email=:mail LIMIT 1", {"mail": email})
-        res = messages.fetchone()
+        data = c.execute("SELECT * FROM users WHERE email=:mail LIMIT 1", {"mail": email})
+        data = data.fetchone()
         if not res:
-            # User not signed up
             return json.dumps({"success": False, "message": "No such user."})
         else:
-            # User signed up
-            return json.dumps({"success": True, "message": "User data retrieved.", "data": "data"})
+            return json.dumps({"success": True, "message": "User data retrieved.", "data": data})
     else:
         return json.dumps({"success": False, "message": "You are not signed in."})
 
 
-# Not Done
+# Done - tested (SQL inj protected)
 def get_user_data_by_token(token):
-    email = get_emailbytoken(token)
+    email = get_email_by_token(token).fetchone()[0]
     return get_user_data_by_email(token, email)
 
 
-# Not Done
+# Done - tested (SQL inj protected)
 def get_user_messages_by_token(token):
-    email = get_emailbytoken(token)
+    email = get_email_by_token(token).fetchone()[0]
     return get_user_messages_by_email(token, email)
 
 
