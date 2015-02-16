@@ -3,6 +3,7 @@ __author__ = 'mtr'
 import sqlite3
 from flask import g
 import json, ast
+import random, string
 
 
 DATABASE = 'database.db'
@@ -19,62 +20,60 @@ def get_db():
         db.text_factory = sqlite3.OptimizedUnicode
     return db
 
-#       1 User table with status if online/offline, 1 table for messages(?)
-#       1 User table, 1 LoggedUsers table
-#       merge messages by using COALESCE and 1 msg table totaly (?)
-#       1 message table for each user!!! (created during sign up)
+
+#       1 table for user, 1 table for loggeduser, 1 table for messages
 def init():
     c = get_db()
     #Users
     c.execute("drop table if exists users")
-    c.execute("create table users (email text, password text, firstname text, familyname text, gender text, city text, country text, messages text)")
+    c.execute("create table users (email text, password text, firstname text, familyname text, gender text, city text, country text)")
     #Loggedusers
     c.execute("drop table if exists loggedusers")
     c.execute("create table loggedusers (email text, userID text)")
+    #Messages
+    c.execute("drop table if exists messages")
+    c.execute("create table messages (email text, message text)")
     print("Database Initialized")
 
     sign_up('email', 'password1', 'firstname', 'familyname', 'gender', 'linkoping', 'country', 'messages')
+    sign_up('email2', 'password1', 'firstname', 'familyname', 'gender', 'linkoping', 'country', 'messages')
     sign_in('email', 'password1')
     #Print out tables
-    res = c.execute("SELECT * FROM loggedusers WHERE email='email' AND userID='1337' LIMIT 1")
+    res = c.execute("SELECT * FROM loggedusers WHERE email='email' LIMIT 1")
     res = res.fetchone()
     print("Loggeduser table: ", res)
-    #res = c.execute("SELECT * FROM users WHERE email='email' LIMIT 1")
+    #res = c.execute("SELECT * FROM users where email='email2'")
     #res = res.fetchone()
     #print("User table: ", res)
-    res = c.execute("SELECT * FROM 'email'")#, {"mail":'email'})
-    res = res.fetchone()
-    print("Messages table: ", res)
+   # res = c.execute("SELECT * FROM messages")
+    #res = res.fetchone()
+   # print("Messages table: ", res)
 
     #cp = change_password('1337', 'password1', 'hejsan123')
     #print("Change_password: ",cp)
     #res = c.execute("SELECT * FROM users WHERE email='email' LIMIT 1")
     #res = res.fetchone()
     #print("User table: ", res)
-    print(post_message('1337',"MESSAGE 1 IS THIS", 'email'))
-#    print(post_message('1337',"MESSAGE 2 IS THIS", 'email'))
-  #  print(post_message('1337',"MESSAGE 3 IS THIS", 'email'))
+    #post_message('1337',"MESSAGE 1 IS THIS", 'email')
+    #post_message('1337',"MESSAGE 2 IS THIS", 'email')
+    #post_message('1337',"MESSAGE 3 IS THIS", 'email2')
 
-    print(get_user_messages_by_token('1337'))
-    res = c.execute("SELECT * FROM 'email'")
-    res = res.fetchone()
-    print("Messages table: ", res)
+    #print(get_user_messages_by_email('1337', 'email'))
+    #print(get_user_messages_by_email('1337', 'email2'))
+    #print(get_user_messages_by_email('1337', 'email3'))
 
-    #res = c.execute("SELECT * FROM messages WHERE email='email'")
-    #res = res.fetchone()
-    #print("Messages table: ", res)
-
-    sign_out('1337')
-
+    while(True):
+        k = 4
 
 # Done
 def close_db():
     get_db().close()
 
 
-# Not Done
+# Done - tested
 def generate_token():
-    return '1337';
+    letters = string.ascii_uppercase + string.ascii_lowercase + string.digits
+    return ''.join(random.choice(letters) for _ in range(36))
 
 
 # Done - tested (SQL inj protected)
@@ -88,7 +87,6 @@ def sign_in(email, password):
         token = generate_token()
         c.execute("INSERT INTO loggedusers VALUES (?, ?)", (email, token))
         return json.dumps({"success": True, "message": "You are now signed in"})#, "data": token})
-    return None
 
 
 # Done - tested (SQL inj protected)
@@ -98,10 +96,7 @@ def sign_up(email, password, firstname, familyname, gender, city, country, messa
     res = res.fetchone()
     if not res:
         try:
-            c.execute("INSERT INTO users values(?, ?, ?, ?, ?, ?, ?, ?)", (email, password, firstname, familyname, gender, city, country, messages))
-            #Messages
-            c.execute("drop table if exists username", {"username":email})
-            c.execute("create table username (messages text)", {"username":email})
+            c.execute("INSERT INTO users values(?, ?, ?, ?, ?, ?, ?)", (email, password, firstname, familyname, gender, city, country))
             c.commit()
             return json.dumps({"success": True, "message": "Successfully created a new user."})
         except:
@@ -110,7 +105,6 @@ def sign_up(email, password, firstname, familyname, gender, city, country, messa
 
     else:
         return json.dumps({"success": False, "message": "User already exists."})
-    return None
 
 
 # Done - tested (SQL inj protected)
@@ -129,7 +123,6 @@ def sign_out(token):
 
     else:
         return json.dumps({"success": False, "message": "You are not signed in."})
-    return None
 
 
 # Done - tested (SQL inj protected)
@@ -192,19 +185,20 @@ def get_user_messages_by_token(token):
 
 
 # Done - tested (SQL inj protected)
-def get_user_messages_by_email(token, email):
+def get_user_messages_by_email(token, username):
     c = get_db()
 
-    res = c.execute("SELECT * FROM loggedusers WHERE userID=:ID LIMIT 1", {"ID": token})
-    res = res.fetchone()
+    res = c.execute("SELECT * FROM loggedusers WHERE userID=:ID LIMIT 1", {"ID": token}).fetchone()
     if res:
-        messages = c.execute("SELECT * FROM 'email'")  #mail", {"mail":email})
-        messages = messages.fetchone()
-        if not messages:
+        res = c.execute("SELECT * FROM users WHERE email=:mail", {"mail":username}).fetchone()
+        if not res:
             return json.dumps({"success": False, "message": "No such user."})
         else:
-            return json.dumps({"success": True, "message": "User messages retrieved.", "messages": messages})
-        return None
+            messageList=[];
+            for row in c.execute("SELECT message FROM messages WHERE email=:mail", {"mail":username}):
+                messageList.append(row)
+            return json.dumps({"success": True, "message": "User messages retrieved.", "messages": messageList})
+
     else:
         return json.dumps({"success": False, "message": "You are not signed in."})
 
@@ -215,8 +209,7 @@ def post_message(token, message, username):
     res = get_email_by_token(token)
     if res:
         try:
-            #c.execute("UPDATE users SET messages=:msg WHERE email=:usr", {"msg":message ,"usr":username})
-            c.execute("INSERT INTO 'email' values(?)", (message))
+            c.execute("INSERT INTO messages values(?, ?)", (username, message))
             c.commit()
             return json.dumps({"success": True, "message": "Message posted"})
         except:
