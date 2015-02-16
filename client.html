@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Page Title</title>
+	<link href="client.css" type="text/css" rel="stylesheet">
+	<script src="client.js" type="text/javascript"></script>
+	<script src="serverstub.js" type="text/javascript"></script>
+	
+		<script id="welcomeview" type=”text/view”>
+			<div id="welcome">
+					<img src="d.jpg" id="img1" alt="Jigglypuff" align="top" >			
+					
+					<form id="signinform" action="#" onsubmit="check(this);return false;">  
+					
+						<label>Username</label> <input type='email' name='email' required value="a@live.se"> <br>
+						<label>Password</label> <input type='password' name='password' required value="aaaaaaa"> <br>
+						<input type="submit" value="Login">	<br>
+						<p id="signInError" style="font-size:100%; color:white;"></p>
+					</form>
+					
+					<form id="signupform" action="#" align="top" onsubmit="store(this);return false;" >					
+						<h2><b> Sign up</label> </b></h2>
+						<label>Username </label> <input type='email' name='email' required> <br>
+						<label>First name </label> <input type='text' name='firstname' required> <br>
+						<label>Family name</label> <input type='text' name='familyname' required> <br>
+						<label>Gender </label><SELECT ONCHANGE="gender" name='gender'>Gender 
+						<OPTION VALUE="male">Male
+						<OPTION VALUE="female">Female
+						</SELECT><br>
+						<label>City</label> <input type='text' name='city' required> <br>
+						<label>Country</label> <input type='text' name='country' required> <br>	
+						<label>Password</label> <input type='password' name='password' required> <br>
+						<label>Repeat Password</label> <input type='password' name='rpassword' required> <br>
+						<input type="submit" value="Submit"> <br> <br>
+						<p id="signUpError" style="font-size:100%; color:white;"></p><br>
+					</form>
+			</div> 
+		</script>
+		
+		<script id="profileview" type=”text/view”>
+			<div id="profile">
+			 <div id="topmenu" style="width: 600px;"> <br>
+				 <div onclick="selected(this)" id="homeitem"><h3>home</h3></div>
+				 <div onclick="selected(this)" id="browseitem"><h3>browse</h3></div>
+				 <div onclick="selected(this)" id="accountitem"><h3>account</h3></div>
+				 <br>
+			</div>
+			
+				 <div id="homepanel">
+					 
+					<form action="#" id="homeWallForm" align="top"onsubmit="postWall(this, true);return false;">				
+							
+							<p id="homeError" style="font-size:80%; color:white;">errortext</p><br>
+							<button type="button" onclick="refreshWall(true)">Refresh</button>	
+							<button type="submit" value="postMsg">Post</button> <br>	
+							<textarea id="msg"style="width:200px"></textarea>	
+							<textarea readonly id="homeWall" style="width:300px; display: inline-block; height:320px"></textarea>
+					</form> 
+					 
+					 <form action="#" id="home" >		   
+							<br><h2>Personal info.</h2>	 
+							<label style="float:none" id="homeEmail">Username</label><br>
+							<label style="float:none" id="homeFname">Firstname</label><br>
+							<label style="float:none" id="homeLname">Lastname</label> <br>
+							<label style="float:none" id="homeGender">Gender</label><br>
+							<label style="float:none" id="homeCity">City</label><br>
+							<label style="float:none" id="homeCountry">Country</label><br>					
+					 </form> 				 
+				 </div>
+				 
+					<div id="browsepanel">
+						 <form action="#" id="browse" onsubmit="browseUser(this);return false;"><br>
+							<br><h2>Browse view.</h2>
+							<label id="same">Find user  </label>
+							<input id="search" type='email' name='pw'> <br>
+							<button type="submit" style="margin-top: 3px;">Find</button> <br>
+							<p id="browsePanelError" style="font-size:80%; color:white;"></p><br>
+						 </form>
+					</div>
+					 
+					<div id="browseuser">
+						<form action="#" id="userWallForm" align="top" onsubmit="postWall(this, false);return false;">				
+							<p id="browseError" style="font-size:80%; color:white;">errortext</p><br>
+							<button type="button" onclick="refreshWall(false)" style="margin-top: 10px;">Refresh</button>	
+							<button type="submit" value="postMsg" style="margin-top: 10px;">Post</button> <br>		
+							<textarea id="msgUser"style="width:200px"></textarea>
+							<textarea readonly id="userWall" style="width:300px; display: inline-block; height:320px"></textarea>
+					
+						</form> 
+						 
+						<form action="#" id="home" onsubmit="browseUser(this);return false;">		   
+							<br><h2>User info.</h2>	
+							<label style="float:none" id="userEmail">Username</label><br>
+							<label style="float:none" id="userFname">Firstname</label><br>
+							<label style="float:none" id="userLname">Lastname</label> <br>
+							<label style="float:none" id="userGender">Gender</label><br>
+							<label style="float:none" id="userCity">City</label><br>
+							<label style="float:none" id="userCountry">Country</label><br>								
+						 </form>  
+					</div>
+				 
+				 <div id="accountpanel">
+					 <form action="#" id="account" onsubmit="changePassword(this);return false;"><br>
+						 <br><h2>Account view.</h2> <br>
+						 
+							<label id="same">New Password</label><input id="newpw" type='password'> <br>
+							<label id="same">New Password</label><input id="newrpw" type='password'> <br>
+							<label id="same">Old Password  </label><input id="oldpw" type='password'> <br>
+							<button type="submit" style="margin-top: 3px;">Change password</button> <br>
+							<p id="accErrorText" style="font-size:80%; color:white;">errortext</p><br>
+							<button type="button" onclick="signOut()" style="margin-top: 40px;">Log out</button>
+					 </form>
+					 <div id="result" style="margin-top: 100px;cursor: pointer" onclick="changeView()"></div>
+				 </div>
+			</div>
+		</script>
+	
+</head>
+
+<body>
+
+	<script>window.onload</script>
+
+	<div id="welcomecontent"></div>
+	<div id="profilecontent"></div>
+		
+</body>
+
+</html>

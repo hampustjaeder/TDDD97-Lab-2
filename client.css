@@ -1,0 +1,135 @@
+h2 {
+	color: pink;
+	text-align: center;
+}
+body {
+     background-color: lightblue;
+	text-align: center;
+	margin:0 auto;
+	max-width:600px;
+	max-height:500px;
+	height:500px;
+}
+form {
+	border: 1px solid pink;
+	width : 250px;
+	margin-left : 10px;
+	background-color: white;
+}
+#img1 {
+	border: 1px solid pink;
+	width : 340px;
+	height : 400px;
+	margin-top: 100px;
+	float: left;
+}
+#signinform{
+	height : 100px;
+	max-height:100px;
+	margin-top: 100px;
+	float: right;
+}
+#signupform{
+	height : 290px;
+	margin-top: 10px;
+	float: right;
+}
+label{
+	display: inline-block;
+	float: left;
+	clear: left;
+	font-size:120%;
+}
+input {
+	width : 100px;
+	float:right;
+}
+select{
+	width : 104px;
+	height: 21px;
+	float:right;
+}
+
+
+
+#topmenu div{
+    cursor: pointer;
+    float:left;
+    display: inline;
+	width:200px;
+	height: 50px
+}
+
+#home {
+	width:200px;
+	height: 500px;
+	margin-top:10px;
+	margin-right:5px;
+	float:right;
+}
+
+#homeWallForm {
+	width:386px;
+	height: 500px;
+	margin-top:10px;
+	margin-left:5px;
+	float:right;
+}
+
+#userWallForm {
+	width:386px;
+	height: 500px;
+	margin-top:10px;
+	margin-left:5px;
+	float:right;
+}
+
+#browse{
+	width:598px;
+	height: 200px
+}
+#account{
+	width:598px;
+	height: 350px
+}
+#same{
+	float:none;
+	margin:0 auto;
+}
+#oldpw{
+	float:none;
+	margin:0 auto;
+	margin-left:10px;
+}
+#newpw{
+	float:none;
+	margin:0 auto;
+	margin-left:3px;
+}
+#newrpw{
+	float:none;
+	margin:0 auto;
+	margin-left:3px;
+}
+#search{
+	float:none;
+	margin:0 auto;
+	margin-left:3px;
+}
+
+
+
+
+
+#ul {
+  list-style-type: none;
+  margin: 0px;
+  background-color: red;
+  float: left;
+}
+
+#li {
+  display: block;
+  float: left; 
+  padding: 25px 10px;
+}

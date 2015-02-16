@@ -6,11 +6,6 @@ app = Flask(__name__)
 app.debug = True
 
 
-#@app.route('/')
-#def hello_world():
-   #database_helper.init()
-   #sign_in()
-
 @app.route('/signup', methods=['POST'])
 def sign_up():
     #if request.method == 'POST':
@@ -27,7 +22,7 @@ def sign_up():
 
 @app.route('/signin', methods=['POST'])
 def sign_in():
-    return database_helper.sign_in('hampus', 'hejsan1')#request.form["email"], request.form["password"])
+    return database_helper.sign_in(request.form['email'], request.form['password'])
 
 @app.route('/signout', methods=['POST'])
 def sign_out(token): #token=''

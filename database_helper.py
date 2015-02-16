@@ -21,7 +21,7 @@ def get_db():
     return db
 
 
-#       1 table for user, 1 table for loggeduser, 1 table for messages
+# 1 table for user, 1 table for loggeduser, 1 table for messages
 def init():
     c = get_db()
     #Users
@@ -37,11 +37,11 @@ def init():
 
     sign_up('email', 'password1', 'firstname', 'familyname', 'gender', 'linkoping', 'country', 'messages')
     sign_up('email2', 'password1', 'firstname', 'familyname', 'gender', 'linkoping', 'country', 'messages')
-    sign_in('email', 'password1')
+    print(sign_in('email', 'password1'))
     #Print out tables
-    res = c.execute("SELECT * FROM loggedusers WHERE email='email' LIMIT 1")
-    res = res.fetchone()
-    print("Loggeduser table: ", res)
+    #res = c.execute("SELECT * FROM loggedusers WHERE email='email' LIMIT 1")
+    #res = res.fetchone()
+    #print("Loggeduser table: ", res)
     #res = c.execute("SELECT * FROM users where email='email2'")
     #res = res.fetchone()
     #print("User table: ", res)
@@ -86,7 +86,7 @@ def sign_in(email, password):
     else:  # Logged in
         token = generate_token()
         c.execute("INSERT INTO loggedusers VALUES (?, ?)", (email, token))
-        return json.dumps({"success": True, "message": "You are now signed in"})#, "data": token})
+        return json.dumps({"success": True, "message": "You are now signed in", "data": token})
 
 
 # Done - tested (SQL inj protected)
