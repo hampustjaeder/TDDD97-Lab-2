@@ -21,50 +21,6 @@ def get_db():
     return db
 
 
-# 1 table for user, 1 table for loggeduser, 1 table for messages
-def init():
-    c = get_db()
-    #Users
-    c.execute("drop table if exists users")
-    c.execute("create table users (email text, password text, firstname text, familyname text, gender text, city text, country text)")
-    #Loggedusers
-    c.execute("drop table if exists loggedusers")
-    c.execute("create table loggedusers (email text, userID text)")
-    #Messages
-    c.execute("drop table if exists messages")
-    c.execute("create table messages (email text, message text)")
-    print("Database Initialized")
-
-    sign_up('email', 'password1', 'firstname', 'familyname', 'gender', 'linkoping', 'country', 'messages')
-    #sign_up('email2', 'password1', 'firstname', 'familyname', 'gender', 'linkoping', 'country', 'messages')
-    print(sign_in('email', 'password1'))
-    #Print out tables
-    #res = c.execute("SELECT * FROM loggedusers WHERE email='email' LIMIT 1")
-    #res = res.fetchone()
-    #print("Loggeduser table: ", res)
-    #res = c.execute("SELECT * FROM users where email='email2'")
-    #res = res.fetchone()
-    #print("User table: ", res)
-   # res = c.execute("SELECT * FROM messages")
-    #res = res.fetchone()
-   # print("Messages table: ", res)
-
-    #cp = change_password('1337', 'password1', 'hejsan123')
-    #print("Change_password: ",cp)
-    #res = c.execute("SELECT * FROM users WHERE email='email' LIMIT 1")
-    #res = res.fetchone()
-    #print("User table: ", res)
-    #post_message('1337',"MESSAGE 1 IS THIS", 'email')
-    #post_message('1337',"MESSAGE 2 IS THIS", 'email')
-    #post_message('1337',"MESSAGE 3 IS THIS", 'email2')
-
-    #print(get_user_messages_by_email('1337', 'email'))
-    #print(get_user_messages_by_email('1337', 'email2'))
-    #print(get_user_messages_by_email('1337', 'email3'))
-
-    while(True):
-        k = 4
-
 # Done
 def close_db():
     get_db().close()
@@ -85,12 +41,12 @@ def sign_in(email, password):
         return json.dumps({"success": False, "message": "Invalid email or password"})
     else:  # Logged in
         token = generate_token()
-        c.execute("INSERT INTO loggedusers VALUES (?, ?)", (email, token))
+        c.execute("INSERT INTO loggedusers values(?, ?)", (email, token))
         return json.dumps({"success": True, "message": "You are now signed in", "data": token})
 
 
 # Done - tested (SQL inj protected)
-def sign_up(email, password, firstname, familyname, gender, city, country, messages):
+def sign_up(email, password, firstname, familyname, gender, city, country):
     c = get_db()
     res = c.execute("SELECT * FROM users WHERE email=:mail LIMIT 1", {"mail":email})
     res = res.fetchone()
@@ -157,7 +113,6 @@ def change_password(token, old_password, new_password):
 # Done - tested (SQL inj protected)
 def get_user_data_by_email(token, email):
     c = get_db()
-    # if loggedInUsers(token) != null
     res = c.execute("SELECT * FROM loggedusers WHERE userID=:ID LIMIT 1", {"ID": token})
     res = res.fetchone()
     if res:
@@ -207,6 +162,7 @@ def get_user_messages_by_email(token, username):
 def post_message(token, message, username):
     c = get_db()
     res = get_email_by_token(token)
+    #NEED TO Check fOR USER!!! (Can post to a user that doesnt exist.
     if res:
         try:
             c.execute("INSERT INTO messages values(?, ?)", (username, message))

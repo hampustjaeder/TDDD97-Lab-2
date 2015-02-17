@@ -1,0 +1,6 @@
+c.execute("drop table if exists users")
+c.execute("create table users (email text, password text, firstname text, familyname text, gender text, city text, country text)")
+c.execute("drop table if exists loggedusers")
+c.execute("create table loggedusers (email text, userID text)")
+c.execute("drop table if exists messages")
+c.execute("create table messages (email text, message text)")
