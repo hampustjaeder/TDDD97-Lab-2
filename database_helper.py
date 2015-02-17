@@ -36,7 +36,7 @@ def init():
     print("Database Initialized")
 
     sign_up('email', 'password1', 'firstname', 'familyname', 'gender', 'linkoping', 'country', 'messages')
-    sign_up('email2', 'password1', 'firstname', 'familyname', 'gender', 'linkoping', 'country', 'messages')
+    #sign_up('email2', 'password1', 'firstname', 'familyname', 'gender', 'linkoping', 'country', 'messages')
     print(sign_in('email', 'password1'))
     #Print out tables
     #res = c.execute("SELECT * FROM loggedusers WHERE email='email' LIMIT 1")
