@@ -30,7 +30,7 @@ def sign_out():
 
 @app.route('/changepassword')
 def change_password():
-    return change_password(request.args.get('token'), request.args.get('oldpw'), request.args.get('newpw'))
+    return database_helper.change_password(request.args.get('token'), request.args.get('oldpw'), request.args.get('newpw'))
 
 @app.route('/getuserdatabyemail')
 def get_user_data_by_email():
