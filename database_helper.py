@@ -42,6 +42,7 @@ def sign_in(email, password):
     else:  # Logged in
         token = generate_token()
         c.execute("INSERT INTO loggedusers values(?, ?)", (email, token))
+        c.commit()
         return json.dumps({"success": True, "message": "You are now signed in", "data": token})
 
 
@@ -84,14 +85,13 @@ def sign_out(token):
 # Done - tested (SQL inj protected)
 def get_email_by_token(token):
     c = get_db()
-    return c.execute("SELECT email FROM loggedusers WHERE userID=:ID", {"ID": token})
+    return c.execute("SELECT email FROM loggedusers WHERE userID=:ID", {"ID": token}).fetchone()
 
 
 # Done - tested (SQL inj protected)
 def change_password(token, old_password, new_password):
     c = get_db()
-    username = get_email_by_token(token).fetchone()
-
+    username = get_email_by_token(token)
     if username:
         pw = c.execute("SELECT password FROM users WHERE email IS ? LIMIT 1", username)
         pw = pw.fetchone()[0]
@@ -113,12 +113,10 @@ def change_password(token, old_password, new_password):
 # Done - tested (SQL inj protected)
 def get_user_data_by_email(token, email):
     c = get_db()
-    res = c.execute("SELECT * FROM loggedusers WHERE userID=:ID LIMIT 1", {"ID": token})
-    res = res.fetchone()
+    res = c.execute("SELECT * FROM loggedusers WHERE userID=:ID LIMIT 1", {"ID": token}).fetchone()
     if res:
-        data = c.execute("SELECT * FROM users WHERE email=:mail LIMIT 1", {"mail": email})
-        data = data.fetchone()
-        if not res:
+        data = c.execute("SELECT * FROM users WHERE email=:mail LIMIT 1", {"mail":str(email)}).fetchone()
+        if not data:
             return json.dumps({"success": False, "message": "No such user."})
         else:
             return json.dumps({"success": True, "message": "User data retrieved.", "data": data})
@@ -128,29 +126,33 @@ def get_user_data_by_email(token, email):
 
 # Done - tested (SQL inj protected)
 def get_user_data_by_token(token):
-    email = get_email_by_token(token).fetchone()[0]
-    return get_user_data_by_email(token, email)
+    email = get_email_by_token(token)
+    if email:
+        return get_user_data_by_email(token, str(email[0]))
+    else:
+        return get_user_data_by_email(token, '')
 
 
 # Done - tested (SQL inj protected)
 def get_user_messages_by_token(token):
-    email = get_email_by_token(token).fetchone()
-    print(email)
-    return get_user_messages_by_email(token, email)
+    email = get_email_by_token(token)
+    if email:
+        return get_user_messages_by_email(token, str(email[0]))
+    else:
+        return get_user_messages_by_email(token, '')
 
 
 # Done - tested (SQL inj protected)
-def get_user_messages_by_email(token, username):
+def get_user_messages_by_email(token, email):
     c = get_db()
-
     res = c.execute("SELECT * FROM loggedusers WHERE userID=:ID LIMIT 1", {"ID": token}).fetchone()
     if res:
-        res = c.execute("SELECT * FROM users WHERE email=:mail", {"mail":username}).fetchone()
+        res = c.execute("SELECT * FROM users WHERE email=:mail LIMIT 1", {"mail":str(email)}).fetchone()
         if not res:
             return json.dumps({"success": False, "message": "No such user."})
         else:
             messageList=[];
-            for row in c.execute("SELECT message FROM messages WHERE email=:mail", {"mail":username}):
+            for row in c.execute("SELECT message FROM messages WHERE email=:mail", {"mail":str(email)}):
                 messageList.append(row)
             return json.dumps({"success": True, "message": "User messages retrieved.", "messages": messageList})
 
@@ -159,17 +161,25 @@ def get_user_messages_by_email(token, username):
 
 
 # Done - tested (SQL inj protected)
-def post_message(token, message, username):
+def post_message(token, message, email):
     c = get_db()
     res = get_email_by_token(token)
-    #NEED TO Check fOR USER!!! (Can post to a user that doesnt exist.
     if res:
-        try:
-            c.execute("INSERT INTO messages values(?, ?)", (username, message))
-            c.commit()
-            return json.dumps({"success": True, "message": "Message posted"})
-        except:
-            c.rollback()
-            return json.dumps({"success": False, "message": "ROLLBACK - No such user."})
+        res = c.execute("SELECT * FROM users WHERE email=:mail LIMIT 1", {"mail":str(email)}).fetchone()
+        if res:
+            try:
+                c.execute("INSERT INTO messages values(?, ?)", (email, message))
+                c.commit()
+                return json.dumps({"success": True, "message": "Message posted"})
+            except:
+                c.rollback()
+                return json.dumps({"success": False, "message": "Failed - Message not posted."})
+        else:
+            return json.dumps({"success": False, "message": "No such user."})
     else:
         return json.dumps({"success": False, "message": "You are not signed in."})
+
+
+#KOMPLETTERING!
+# Dict python -> return python object from database_helper  ( JSON will be returned from the server instead.)
+# Implement Methods in server.py.
