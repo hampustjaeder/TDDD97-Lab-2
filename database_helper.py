@@ -182,4 +182,4 @@ def post_message(token, message, email):
 
 #KOMPLETTERING!
 # Dict python -> return python object from database_helper  ( JSON will be returned from the server instead.)
-# Implement Methods in server.py.
+# Implement Methods in server.py. (FIXAT)
