@@ -29,8 +29,6 @@ def sign_in():
     if request.method == 'GET':
         return json.dumps(database_helper.sign_in(request.args.get('email'), request.args.get('password')))
 
-
-
 @app.route('/signout', methods=['GET'])
 def sign_out():
     if request.method == 'GET':
