@@ -2,7 +2,6 @@ __author__ = 'mtr'
 
 import sqlite3
 from flask import g
-import json, ast
 import random, string
 
 
@@ -38,12 +37,17 @@ def sign_in(email, password):
     res = c.execute("SELECT * FROM users WHERE email=:mail AND password=:pw LIMIT 1",  {"mail": email, "pw": password})
     res = res.fetchone()
     if not res:  # Not logged in
-        return json.dumps({"success": False, "message": "Invalid email or password"})
+        return {'success': False, 'message': "Invalid email or password"}
     else:  # Logged in
         token = generate_token()
         c.execute("INSERT INTO loggedusers values(?, ?)", (email, token))
         c.commit()
-        return json.dumps({"success": True, "message": "You are now signed in", "data": token})
+
+        #CHECK IF USER ALREADY SIGNED IN -> DELETE SIGNED IN USER FROM TABLE
+        #AFTER CHECK/SIGNOUT -> SIGN IN!!
+
+        return {'success': True, 'message': "You are now signed in", 'data': token}
+
 
 
 # Done - tested (SQL inj protected)
@@ -55,13 +59,13 @@ def sign_up(email, password, firstname, familyname, gender, city, country):
         try:
             c.execute("INSERT INTO users values(?, ?, ?, ?, ?, ?, ?)", (email, password, firstname, familyname, gender, city, country))
             c.commit()
-            return json.dumps({"success": True, "message": "Successfully created a new user."})
+            return {'success': True, 'message': "Successfully created a new user."}
         except:
             c.rollback()
-            return json.dumps({"success": False, "message": "Formdata not complete."})
+            return {'success': False, 'message': "Formdata not complete."}
 
     else:
-        return json.dumps({"success": False, "message": "User already exists."})
+        return {'success': False, 'message': "User already exists."}
 
 
 # Done - tested (SQL inj protected)
@@ -73,13 +77,13 @@ def sign_out(token):
         try:
             c.execute("DELETE FROM loggedusers WHERE userID=:ID", {"ID": token})
             c.commit()
-            return json.dumps({"success": True, "message": "Successfully signed out"})
+            return {'success': True, 'message': "Successfully signed out"}
         except:
             c.rollback()
-            return json.dumps({"success": False, "message": "Failed to sign out"})
+            return {'success': False, 'message': "Failed to sign out"}
 
     else:
-        return json.dumps({"success": False, "message": "You are not signed in."})
+        return {'success': False, 'message': "You are not signed in."}
 
 
 # Done - tested (SQL inj protected)
@@ -99,15 +103,15 @@ def change_password(token, old_password, new_password):
             try:
                 c.execute("UPDATE users SET password=:npw WHERE email=:mail", {"npw":new_password, "mail":username[0]})
                 c.commit()
-                return json.dumps({"success": True, "message": "Password changed."})
+                return {'success': True, 'message': "Password changed."}
             except:
                 c.rollback()
-                return json.dumps({"success": False, "message": "Rollback, Password not changed."})
+                return {'success': False, 'message': "Rollback, Password not changed."}
         else:
-            return json.dumps({"success": False, "message": "Wrong password."})
+            return {'success': False, 'message': "Wrong password."}
 
     else:
-        return json.dumps({"success": False, "message": "You are not signed in."})
+        return {'success': False, 'message': "You are not signed in."}
 
 
 # Done - tested (SQL inj protected)
@@ -117,11 +121,11 @@ def get_user_data_by_email(token, email):
     if res:
         data = c.execute("SELECT * FROM users WHERE email=:mail LIMIT 1", {"mail":str(email)}).fetchone()
         if not data:
-            return json.dumps({"success": False, "message": "No such user."})
+            return {'success': False, 'message': "No such user."}
         else:
-            return json.dumps({"success": True, "message": "User data retrieved.", "data": data})
+            return {'success': True, 'message': "User data retrieved.", "data": data}
     else:
-        return json.dumps({"success": False, "message": "You are not signed in."})
+        return {'success': False, 'message': "You are not signed in."}
 
 
 # Done - tested (SQL inj protected)
@@ -149,15 +153,15 @@ def get_user_messages_by_email(token, email):
     if res:
         res = c.execute("SELECT * FROM users WHERE email=:mail LIMIT 1", {"mail":str(email)}).fetchone()
         if not res:
-            return json.dumps({"success": False, "message": "No such user."})
+            return {'success': False, 'message': "No such user."}
         else:
             messageList=[];
             for row in c.execute("SELECT message FROM messages WHERE email=:mail", {"mail":str(email)}):
                 messageList.append(row)
-            return json.dumps({"success": True, "message": "User messages retrieved.", "messages": messageList})
+            return {'success': True, 'message': "User messages retrieved.", 'messages': messageList}
 
     else:
-        return json.dumps({"success": False, "message": "You are not signed in."})
+        return {'success': False, 'message': "You are not signed in."}
 
 
 # Done - tested (SQL inj protected)
@@ -170,16 +174,16 @@ def post_message(token, message, email):
             try:
                 c.execute("INSERT INTO messages values(?, ?)", (email, message))
                 c.commit()
-                return json.dumps({"success": True, "message": "Message posted"})
+                return {'success': True, 'message': "Message posted"}
             except:
                 c.rollback()
-                return json.dumps({"success": False, "message": "Failed - Message not posted."})
+                return {'success': False, 'message': "Failed - Message not posted."}
         else:
-            return json.dumps({"success": False, "message": "No such user."})
+            return {'success': False, 'message': "No such user."}
     else:
-        return json.dumps({"success": False, "message": "You are not signed in."})
+        return {'success': False, 'message': "You are not signed in."}
 
 
 #KOMPLETTERING!
-# Dict python -> return python object from database_helper  ( JSON will be returned from the server instead.)
+# Dict python -> return python object from database_helper  ( JSON will be returned from the server instead.) (FIXAT)
 # Implement Methods in server.py. (FIXAT)
